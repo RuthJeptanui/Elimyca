@@ -1,6 +1,6 @@
 -- Create database
 
-USE elimyca2_db;
+USE elimyca_db;
 
 
 
