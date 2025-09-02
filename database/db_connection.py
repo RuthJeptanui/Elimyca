@@ -1,6 +1,7 @@
 import mysql.connector
 import psycopg2
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -8,15 +9,17 @@ def get_db_connection():
     from config import Config
     try:
         if Config.DB_ENGINE == 'postgresql':
-            conn = psycopg2.connect(
-                dbengine=Config.DB_ENGINE,
-                databaseurl=Config.DATABASE_URL,
-                host=Config.DB_HOST,
-                user=Config.DB_USER,
-                password=Config.DB_PASSWORD,
-                dbname=Config.DB_NAME,
-                port=Config.DB_PORT
-            )
+            if Config.DATABASE_URL:
+                # Use DATABASE_URL directly (recommended on Render)
+                conn = psycopg2.connect(Config.DATABASE_URL)
+            else:
+                conn = psycopg2.connect(
+                    host=Config.DB_HOST,
+                    user=Config.DB_USER,
+                    password=Config.DB_PASSWORD,
+                    dbname=Config.DB_NAME,
+                    port=Config.DB_PORT
+                )
             logger.debug("✅ PostgreSQL database connection successful!")
             return conn
         else:
@@ -25,7 +28,7 @@ def get_db_connection():
                 user=Config.DB_USER,
                 password=Config.DB_PASSWORD,
                 database=Config.DB_NAME,
-                port=Config.DB_PORT  # Explicit port
+                port=Config.DB_PORT
             )
             if conn.is_connected():
                 logger.debug("✅ MySQL database connection successful!")
@@ -33,34 +36,3 @@ def get_db_connection():
     except Exception as e:
         logger.error(f"❌ Database connection failed ({Config.DB_ENGINE}): {e}")
         return None
-
-def execute_query(query, params=None, fetch=False):
-    conn = get_db_connection()
-    if not conn:
-        return None
-
-    try:
-        with conn.cursor() as cursor:
-            cursor.execute(query, params or ())
-
-            if fetch and query.strip().upper().startswith('SELECT'):
-                columns = [desc[0] for desc in cursor.description] if cursor.description else []
-                rows = cursor.fetchall()
-                return [dict(zip(columns, row)) for row in rows]
-
-            conn.commit()
-
-            if query.strip().upper().startswith('INSERT'):
-                if hasattr(cursor, 'lastrowid') and cursor.lastrowid:
-                    return cursor.lastrowid  # MySQL
-                elif conn.__class__.__module__.startswith('psycopg2'):
-                    cursor.execute("SELECT LASTVAL()")
-                    return cursor.fetchone()[0]
-            return True
-
-    except Exception as e:
-        logger.error(f"❌ Query execution failed: {e}")
-        conn.rollback()
-        return None
-    finally:
-        conn.close()
