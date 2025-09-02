@@ -73,7 +73,7 @@ LOCAL_DB = {
 # Hugging Face API
 # -------------------------
 HF_API_URL = "https://api-inference.huggingface.co/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english"
-HF_API_TOKEN = os.getenv('HF_API_TOKEN', '')
+HF_API_TOKEN = os.getenv('H_F', '')
 
 # -------------------------
 # App Defaults
