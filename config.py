@@ -8,10 +8,11 @@ load_dotenv()
 
 
 # Database configuration (update with your MySQL details)
-DB_HOST='localhost'
-DB_USER='DB_USER'  
-DB_PASSWORD='DB_PASSWORD'  
-DB_NAME='DB_NAME'  
+DB_HOST = os.getenv('DB_HOST')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME') 
+
 
 
 def safe_float(value, default):
@@ -19,6 +20,12 @@ def safe_float(value, default):
         return float(value)
     except (ValueError, TypeError):
         return float(default)
+    
+def safe_int(value, default):
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return int(default)
  
 
 # Hugging Face API (for sentiment analysis)
@@ -39,9 +46,9 @@ INTASEND_TEST_MODE=os.getenv("INTASEND_TEST_MODE", "True").lower() == "true"
 INTASEND_PRODUCTION_MODE=os.getenv("INTASEND_PRODUCTION_MODE", "False").lower() == "true"
 
 # Email configuration
-MAIL_SERVER=os.getenv("MAIL_SERVER")
-MAIL_PORT=int(os.getenv("MAIL_PORT", 587))
-MAIL_USE_TLS=os.getenv("MAIL_USE_TLS", "True").lower() == "true"
-MAIL_USERNAME=os.getenv("MAIL_USERNAME")
-MAIL_PASSWORD=os.getenv("MAIL_PASSWORD")
-
+MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+MAIL_PORT = safe_int(os.getenv('MAIL_PORT', '587'), '587')
+MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'True') == 'True'
+MAIL_USERNAME = os.getenv('MAIL_USERNAME', '')
+MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', '')
+MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', '')

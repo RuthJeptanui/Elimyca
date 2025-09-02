@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_mail import Mail, Message
 import mysql.connector
 import requests
 import config
@@ -16,8 +17,12 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 main_bp = Blueprint('main', __name__)
 
+# Initialize Flask-Mail
+mail = Mail()
+
 # Hugging Face API Configuration
 HF_API_URL = "https://api-inference.huggingface.co/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english"
+HF_KEYPHRASE_URL = "https://api-inference.huggingface.co/models/ml6team/keyphrase-extraction-kbir-inspec"
 
 # IntaSend service
 intasend = APIService(
