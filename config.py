@@ -12,6 +12,13 @@ DB_HOST='localhost'
 DB_USER='DB_USER'  
 DB_PASSWORD='DB_PASSWORD'  
 DB_NAME='DB_NAME'  
+
+
+def safe_float(value, default):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return float(default)
  
 
 # Hugging Face API (for sentiment analysis)
@@ -21,7 +28,7 @@ HF_API_TOKEN=os.getenv('HF_API_TOKEN', '')
 
 #Tip: Don't commit passwords to git! Use environment variables for real projects. For now, hardcode if testing locally.
 
-DEFAULT_SESSION_PRICE=float(os.getenv('DEFAULT_SESSION_PRICE', '10.00'))  
+DEFAULT_SESSION_PRICE = safe_float(os.getenv('DEFAULT_SESSION_PRICE', '10.00'), '10.00') 
 DEFAULT_CURRENCY=os.getenv('DEFAULT_CURRENCY', 'KES')
 
 SECRET_KEY=os.getenv("SECRET_KEY", secrets.token_hex(32))  
