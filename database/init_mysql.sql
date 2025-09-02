@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS tutors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     expertise VARCHAR(255) NOT NULL,      -- Comma-separated subjects
-    availability VARCHAR(100),            -- Changed to string (e.g. "Weekdays 5-8pm")
+    availability INT DEFAULT 5,             
     email VARCHAR(255),
     phone_number VARCHAR(20),
-    current_load INT DEFAULT 0,
+    current_load INT DEFAULT 0, 
     payment_status ENUM('PENDING','PAID','FAILED') NOT NULL DEFAULT 'PENDING',
     subject_tags TEXT
 );
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS students (
     phone_number VARCHAR(20),
     sentiment VARCHAR(50),                -- From Hugging Face
     matched_tutor_id INT,
-    payment_status ENUM('PENDING','PAID','FAILED') DEFAULT 'PENDING',
+    payment_status BOOLEAN DEFAULT FALSE  ,  -- Changed to BOOLEAN for simplicity
     subject_tags TEXT,
     compatibility_score DECIMAL(5,2) DEFAULT 0.00,
     FOREIGN KEY (matched_tutor_id) REFERENCES tutors(id) ON DELETE SET NULL

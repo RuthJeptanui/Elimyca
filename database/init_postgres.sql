@@ -5,12 +5,12 @@
 CREATE TABLE IF NOT EXISTS tutors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    expertise VARCHAR(255) NOT NULL,      -- Comma-separated subjects
-    availability VARCHAR(100),            -- String (e.g. "Weekdays 5-8pm")
+    expertise VARCHAR(255) NOT NULL,      
+    availability INT DEFAULT 5,             
     email VARCHAR(255),
     phone_number VARCHAR(20),
     current_load INT DEFAULT 0,
-    payment_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (payment_status IN ('PENDING', 'PAID', 'FAILED')),
+    payment_status BOOLEAN DEFAULT FALSE, 
     subject_tags TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -20,11 +20,12 @@ CREATE TABLE IF NOT EXISTS students (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     needs_description TEXT NOT NULL,      -- Clearer than 'description'
-    email VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
     phone_number VARCHAR(20),
-    sentiment VARCHAR(50),                -- From Hugging Face
-    matched_tutor_id INT,
-    payment_status VARCHAR(20) DEFAULT 'PENDING' CHECK (payment_status IN ('PENDING', 'PAID', 'FAILED')),
+    sentiment VARCHAR(50), 
+    sentiment_score REAL,               -- From Hugging Face
+    matched_tutor_id INT REFERENCES tutors(id) ON DELETE SET NULL,
+    payment_status BOOLEAN DEFAULT FALSE, 
     subject_tags TEXT,
     compatibility_score DECIMAL(5,2) DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

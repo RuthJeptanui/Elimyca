@@ -76,23 +76,38 @@ def get_cursor(conn, dict_mode=False):
         return conn.cursor(cursor_factory=RealDictCursor) if dict_mode else conn.cursor()
     else:
         return conn.cursor(dictionary=dict_mode)
-    
 
-#helper functions for inserting students and updating payment statuses so we don’t repeat DB‑specific quirks:
+def get_payment_status_value(status_string):
+    """Convert string payment status to appropriate database value"""
+    if config.ENVIRONMENT == "production":  # PostgreSQL uses boolean
+        return status_string.upper() == 'PAID'
+    else:  # MySQL uses string
+        return status_string.upper()
+
+def get_payment_status_query():
+    """Get the appropriate payment status query for the database"""
+    if config.ENVIRONMENT == "production":  # PostgreSQL
+        return "payment_status = TRUE"
+    else:  # MySQL
+        return "payment_status = 'PAID'"
+
+#helper functions for inserting students and updating payment statuses so we don't repeat DB‑specific quirks:
 def insert_student(conn, name, needs_description, sentiment_score, tutor_id, email, phone_number, subject_tags):
     cur = get_cursor(conn)
+    pending_status = get_payment_status_value('PENDING')
+    
     if config.ENVIRONMENT == "production":
         cur.execute("""
             INSERT INTO students (name, needs_description, sentiment, matched_tutor_id, payment_status, email, phone_number, subject_tags)
-            VALUES (%s, %s, %s, %s, 'PENDING', %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id;
-        """, (name, needs_description, str(sentiment_score), tutor_id, email, phone_number, subject_tags))
+        """, (name, needs_description, str(sentiment_score), tutor_id, pending_status, email, phone_number, subject_tags))
         student_id = cur.fetchone()['id']
     else:
         cur.execute("""
             INSERT INTO students (name, needs_description, sentiment, matched_tutor_id, payment_status, email, phone_number, subject_tags)
-            VALUES (%s, %s, %s, %s, 'PENDING', %s, %s, %s)
-        """, (name, needs_description, str(sentiment_score), tutor_id, email, phone_number, subject_tags))
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (name, needs_description, str(sentiment_score), tutor_id, pending_status, email, phone_number, subject_tags))
         student_id = cur.lastrowid
     conn.commit()
     cur.close()
@@ -100,12 +115,10 @@ def insert_student(conn, name, needs_description, sentiment_score, tutor_id, ema
 
 def update_payment_status(conn, table, entity_id, status):
     cur = get_cursor(conn)
-    cur.execute(f"UPDATE {table} SET payment_status = %s WHERE id = %s", (status, entity_id))
+    status_value = get_payment_status_value(status)
+    cur.execute(f"UPDATE {table} SET payment_status = %s WHERE id = %s", (status_value, entity_id))
     conn.commit()
     cur.close()
-
-
-
 
 # Enhanced sentiment analysis with Hugging Face
 def get_sentiment(text):
@@ -187,19 +200,20 @@ def tutor_register():
 
         try:
             cursor = get_cursor(conn)
+            pending_status = get_payment_status_value('PENDING')
 
             if config.ENVIRONMENT == "production":  # PostgreSQL
                 cursor.execute("""
                     INSERT INTO tutors (name, expertise, availability, payment_status, email, phone_number, subject_tags)
-                    VALUES (%s, %s, %s, 'PENDING', %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                     RETURNING id;
-                """, (name, expertise, availability, email, phone_number, subject_tags))
+                """, (name, expertise, availability, pending_status, email, phone_number, subject_tags))
                 tutor_id = cursor.fetchone()[0]
             else:  # MySQL
                 cursor.execute("""
                     INSERT INTO tutors (name, expertise, availability, payment_status, email, phone_number, subject_tags)
-                    VALUES (%s, %s, %s, 'PENDING', %s, %s, %s)
-                """, (name, expertise, availability, email, phone_number, subject_tags))
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (name, expertise, availability, pending_status, email, phone_number, subject_tags))
                 tutor_id = cursor.lastrowid
 
             conn.commit()
@@ -288,8 +302,9 @@ def student_form():
             # Decide ordering based on sentiment
             order_by = "ORDER BY current_load ASC" if sentiment_score > 0.5 else "ORDER BY current_load DESC"
 
-            # Base query — use string match for payment_status
-            query = "SELECT * FROM tutors WHERE current_load < availability AND payment_status = 'PAID'"
+            # Base query — use database-appropriate payment status check
+            payment_status_condition = get_payment_status_query()
+            query = f"SELECT * FROM tutors WHERE current_load < availability AND {payment_status_condition}"
 
             # Add keyword filtering if present
             if keywords:
@@ -305,18 +320,20 @@ def student_form():
 
             if tutor:
                 # Insert student in a DB‑agnostic way
+                pending_status = get_payment_status_value('PENDING')
+                
                 if config.ENVIRONMENT == "production":
                     cursor.execute("""
                         INSERT INTO students (name, needs_description, sentiment, matched_tutor_id, payment_status, email, phone_number, subject_tags)
-                        VALUES (%s, %s, %s, %s, 'PENDING', %s, %s, %s)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         RETURNING id;
-                    """, (name, needs_description, str(sentiment_score), tutor['id'], email, phone_number, subject_tags))
+                    """, (name, needs_description, str(sentiment_score), tutor['id'], pending_status, email, phone_number, subject_tags))
                     student_id = cursor.fetchone()['id']
                 else:
                     cursor.execute("""
                         INSERT INTO students (name, needs_description, sentiment, matched_tutor_id, payment_status, email, phone_number, subject_tags)
-                        VALUES (%s, %s, %s, %s, 'PENDING', %s, %s, %s)
-                    """, (name, needs_description, str(sentiment_score), tutor['id'], email, phone_number, subject_tags))
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (name, needs_description, str(sentiment_score), tutor['id'], pending_status, email, phone_number, subject_tags))
                     student_id = cursor.lastrowid
 
                 conn.commit()
@@ -482,9 +499,10 @@ def payment_callback():
 
             if payment_successful:
                 if payment_type == 'tutor':
+                    paid_status = get_payment_status_value('PAID')
                     cursor.execute(
-                        "UPDATE tutors SET payment_status = 'PAID' WHERE id = %s",
-                        (entity_id,)
+                        "UPDATE tutors SET payment_status = %s WHERE id = %s",
+                        (paid_status, entity_id)
                     )
                     conn.commit()
                     flash("Tutor registration payment successful!", "success")
@@ -492,11 +510,12 @@ def payment_callback():
 
                 elif payment_type == 'student':
                     tutor_id = session.get('tutor_id')
+                    paid_status = get_payment_status_value('PAID')
 
                     # Update student payment status
                     cursor.execute(
-                        "UPDATE students SET payment_status = 'PAID' WHERE id = %s",
-                        (entity_id,)
+                        "UPDATE students SET payment_status = %s WHERE id = %s",
+                        (paid_status, entity_id)
                     )
 
                     # Increment tutor load
@@ -549,9 +568,10 @@ def payment_callback():
             else:
                 # Payment failed
                 if payment_type == 'student':
+                    failed_status = get_payment_status_value('FAILED')
                     cursor.execute(
-                        "UPDATE students SET payment_status = 'FAILED' WHERE id = %s",
-                        (entity_id,)
+                        "UPDATE students SET payment_status = %s WHERE id = %s",
+                        (failed_status, entity_id)
                     )
                     conn.commit()
 
@@ -584,4 +604,3 @@ def payment_callback():
 @main_bp.route('/payment_success')
 def payment_success():
     return render_template('payment_success.html')
-
