@@ -16,6 +16,7 @@ instance/
 # OS files
 .DS_Store
 Thumbs.db
+
 # Logs
 *.log
 logs/
@@ -23,3 +24,5 @@ logs/
 # database
 database/*.sqlite3
 s
+
+
