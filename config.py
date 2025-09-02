@@ -44,6 +44,7 @@ def safe_bool(value, default=False):
 # Database Configuration
 # -------------------------
 DB_ENGINE = os.getenv('DB_ENGINE', 'mysql').lower()
+DATABASE_URL = os.getenv('DATABASE_URL', '')
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_USER = os.getenv('DB_USER')
