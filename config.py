@@ -21,7 +21,7 @@ HF_API_TOKEN=os.getenv('HF_API_TOKEN', '')
 
 #Tip: Don't commit passwords to git! Use environment variables for real projects. For now, hardcode if testing locally.
 
-DEFAULT_SESSION_PRICE=float(os.getenv('DEFAULT_SESSION_PRICE'))  
+DEFAULT_SESSION_PRICE=float(os.getenv('DEFAULT_SESSION_PRICE', '10'))  
 DEFAULT_CURRENCY=os.getenv('DEFAULT_CURRENCY', 'KES')
 
 SECRET_KEY=os.getenv("SECRET_KEY", secrets.token_hex(32))  # For session management
