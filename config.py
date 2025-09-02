@@ -36,6 +36,10 @@ def safe_bool(value, default=False):
         return value.strip().lower() in ("true", "1", "yes", "y")
     return bool(default)
 
+
+
+
+
 # -------------------------
 # Database Configuration
 # -------------------------
@@ -67,6 +71,19 @@ LOCAL_DB = {
     "database": DB_NAME,
     "port": DB_PORT
 }
+
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def get_db_uri():
+    if DATABASE_URL:
+        return DATABASE_URL  
+    if DB_ENGINE == 'mysql':
+        return f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    elif DB_ENGINE == 'postgresql':
+        return f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    else:
+        raise ValueError("Unsupported DB_ENGINE. Use 'mysql' or 'postgresql'.")
 
 
 
