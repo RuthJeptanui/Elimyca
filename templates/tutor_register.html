@@ -7,14 +7,18 @@
     <title>Tutor Registration | EduTutor Connect</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-   
+
 </head>
 <body>
 
     <!-- Hero Section -->
     <section class="hero">
-        <h2>Join Our Tutor Network</h2>
-        <p class="lead">Share your expertise and connect with students who need your guidance.</p>
+        <h2>Join Our Tutor Network
+            <span class="ai-badge">
+                <i class="fas fa-robot"></i> AI-Powered Matching
+            </span>
+        </h2>
+        <p class="lead">Share your expertise and connect with students who need your guidance through AI-powered matching.</p>
     </section>
 
     <!-- Form Section -->
@@ -22,18 +26,49 @@
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
                 <div class="form-card">
-                    <form method="POST" novalidate>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="tutorForm" >
                         <!-- Name -->
                         <div class="mb-3">
                             <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="name" name="name" placeholder="e.g., John Doe" required>
                         </div>
 
-                        <!-- Expertise -->
+                        <!-- Expertise with AI -->
                         <div class="mb-3">
-                            <label for="expertise" class="form-label">Expertise Areas <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="expertise" name="expertise" placeholder="e.g., Math, Science, English" required>
-                            <small class="text-muted">Separate multiple subjects with commas.</small>
+                            <label for="expertise" class="form-label">
+                                Expertise Areas <span class="text-danger">*</span>
+                                <small class="text-muted d-block">AI will detect and tag subjects automatically</small>
+                            </label>
+                            <textarea class="form-control" id="expertise" name="expertise" rows="3" 
+                                      placeholder="e.g., I specialize in advanced mathematics including calculus, linear algebra, and statistics. I also teach physics (mechanics, thermodynamics) and have experience with programming languages like Python and JavaScript..." required></textarea>
+                            <small class="text-muted">Describe your teaching areas in detail for better AI matching.</small>
+                            
+                            <div class="typing-indicator">
+                                <i class="fas fa-robot me-2"></i>
+                                AI is analyzing your expertise...
+                            </div>
+                            
+                            <div class="ai-suggestions" id="aiSuggestions">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tags me-2"></i>
+                                    <strong>AI Detected Subjects:</strong>
+                                </div>
+                                <div id="suggestionTags"></div>
+                                <small class="text-white-50 mt-2 d-block">
+                                    Click on tags to add them to your expertise description
+                                </small>
+                            </div>
                         </div>
 
                         <!-- Availability -->
@@ -57,7 +92,7 @@
                         <!-- Buttons -->
                         <div class="d-flex flex-wrap gap-2">
                             <button type="submit" class="btn btn-primary flex-grow-1">
-                                Register & Pay Monthly Fee (KES 1000)
+                                <i class="fas fa-robot me-2"></i>Register & Pay Monthly Fee (KES 10)
                             </button>
                             <a href="{{ url_for('index') }}" class="btn btn-outline-secondary flex-grow-1">Back</a>
                         </div>
@@ -65,8 +100,18 @@
 
                     <!-- Info Text -->
                     <p class="info-text mt-3">
-                        After registration, you’ll be redirected to IntaSend for secure payment processing.
+                        After registration, you'll be redirected to IntaSend for secure payment processing. Our AI will help match you with students who need your specific expertise.
                     </p>
+
+                    <!-- AI Features Info -->
+                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                        <h6 class="mb-2"><i class="fas fa-star me-2"></i>Benefits of AI-Enhanced Matching</h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li><i class="fas fa-check text-success me-2"></i>Get matched with students who need your exact expertise</li>
+                            <li><i class="fas fa-check text-success me-2"></i>AI analyzes student urgency to prioritize assignments</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Automatic subject tagging improves discoverability</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,5 +124,84 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        let typingTimer;
+        const typingDelay = 1000;
+        
+        document.getElementById('expertise').addEventListener('input', function() {
+            const text = this.value;
+            const typingIndicator = document.querySelector('.typing-indicator');
+            const aiSuggestions = document.getElementById('aiSuggestions');
+            
+            clearTimeout(typingTimer);
+            
+            if (text.length > 10) {
+                typingIndicator.style.display = 'block';
+                aiSuggestions.style.display = 'none';
+                
+                typingTimer = setTimeout(() => {
+                    getSuggestions(text);
+                }, typingDelay);
+            } else {
+                typingIndicator.style.display = 'none';
+                aiSuggestions.style.display = 'none';
+            }
+        });
+        
+        function getSuggestions(text) {
+            fetch('/api/suggest_subjects', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displaySuggestions(data.suggestions);
+                document.querySelector('.typing-indicator').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.querySelector('.typing-indicator').style.display = 'none';
+            });
+        }
+        
+        function displaySuggestions(suggestions) {
+            const suggestionTags = document.getElementById('suggestionTags');
+            const aiSuggestions = document.getElementById('aiSuggestions');
+            
+            if (suggestions.length > 0) {
+                suggestionTags.innerHTML = '';
+                suggestions.forEach(subject => {
+                    const tag = document.createElement('span');
+                    tag.className = 'suggestion-tag';
+                    tag.textContent = subject;
+                    tag.onclick = () => addSubjectToExpertise(subject);
+                    suggestionTags.appendChild(tag);
+                });
+                aiSuggestions.style.display = 'block';
+            } else {
+                aiSuggestions.style.display = 'none';
+            }
+        }
+        
+        function addSubjectToExpertise(subject) {
+            const textarea = document.getElementById('expertise');
+            const currentText = textarea.value;
+            
+            if (!currentText.toLowerCase().includes(subject.toLowerCase())) {
+                textarea.value = currentText + (currentText.endsWith('.') || currentText.endsWith(' ') ? '' : ' ') + subject + ' ';
+                textarea.focus();
+                getSuggestions(textarea.value);
+            }
+        }
+        
+        document.getElementById('tutorForm').addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Registration & Payment...';
+            submitBtn.disabled = true;
+        });
+    </script>
 </body>
 </html>

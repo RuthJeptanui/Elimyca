@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#EAF6FF"></circle>
+  
+  <!-- Body -->
+  <rect x="65" y="110" width="70" height="60" rx="10" fill="#4CAF50"></rect>
+  
+  <!-- Head -->
+  <circle cx="100" cy="80" r="30" fill="#FFD1A9"></circle>
+  
+  <!-- Hair -->
+  <path d="M70 80c0-20 20-35 30-35s30 15 30 35z" fill="#2C2C2C"></path>
+  
+  <!-- Eyes -->
+  <circle cx="88" cy="80" r="5" fill="#000"></circle>
+  <circle cx="112" cy="80" r="5" fill="#000"></circle>
+  
+  <!-- Smile -->
+  <path d="M88 95q12 10 24 0" stroke="#000" stroke-width="2" fill="none"></path>
+  
+  <!-- Graduation Cap -->
+  <polygon points="60,65 100,50 140,65 100,80" fill="#333"></polygon>
+  <line x1="100" y1="80" x2="100" y2="100" stroke="#333" stroke-width="3"></line>
+  <circle cx="100" cy="100" r="3" fill="#333"></circle>
+</svg>

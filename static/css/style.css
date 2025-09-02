@@ -117,6 +117,44 @@ body {
     color: var(--accent-green);
 }
 
+       .ai-suggestions {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .suggestion-tag {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin: 0.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .suggestion-tag:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        .typing-indicator {
+            display: none;
+            color: #28a745;
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+        }
+        .ai-badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-left: 0.5rem;
+        }
+
+
 /* ===== Error States ===== */
 .is-invalid,
 .alert-danger {

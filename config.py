@@ -9,9 +9,9 @@ load_dotenv()
 # Database configuration (update with your MySQL details)
 # Database configuration (update with your MySQL details)
 DB_HOST='localhost'
-DB_USER='jeptanui@gmail.com'  
-DB_PASSWORD='Tech@1234!'  
-DB_NAME='elimyca_db'  
+DB_USER='DB_USER'  
+DB_PASSWORD='DB_PASSWORD'  
+DB_NAME='DB_NAME'  
  
 
 # Hugging Face API (for sentiment analysis)

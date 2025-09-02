@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Tutor - AI Matching Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .tutor-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .tutor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .best-match {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+        }
+        .compatibility-score {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .score-excellent { color: #28a745; }
+        .score-good { color: #ffc107; }
+        .score-fair { color: #fd7e14; }
+        .subject-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin: 0.2rem;
+            display: inline-block;
+        }
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="text-center mb-4">
+                    <h2 class="text-primary">
+                        <i class="fas fa-robot me-2"></i>
+                        AI-Powered Tutor Matching Results
+                    </h2>
+                    <div class="ai-badge">
+                        <i class="fas fa-brain me-2"></i>
+                        Our AI analyzed your needs and found the best tutors for you
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('select_tutor') }}">
+                    <input type="hidden" name="student_id" value="{{ student_id }}">
+                    
+                    {% for match in tutor_matches %}
+                    <div class="card tutor-card mb-4 {% if loop.index == 1 %}best-match{% endif %}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {% if loop.index == 1 %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-success me-2">
+                                            <i class="fas fa-star me-1"></i>Best Match
+                                        </span>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-trophy me-1"></i>AI Recommended
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <h4 class="card-title text-primary">{{ match.tutor.name }}</h4>
+                                    <p class="card-text">{{ match.tutor.expertise }}</p>
+                                    
+                                    <div class="mb-3">
+                                        <strong>Subjects:</strong><br>
+                                        {% for subject in match.subjects %}
+                                        <span class="subject-tag">{{ subject.title() }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <small class="text-muted">
+                                                <i class="fas fa-users me-1"></i>
+                                                Current Load: {{ match.tutor.current_load }}/{{ match.tutor.availability }}
+                                            </small>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <small class="text-muted">
+                                                <i class="fas fa-envelope me-1"></i>
+                                                {{ match.tutor.email }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 text-center">
+                                    <div class="mb-3">
+                                        <div class="compatibility-score 
+                                            {% if match.score >= 80 %}score-excellent
+                                            {% elif match.score >= 60 %}score-good
+                                            {% else %}score-fair{% endif %}">
+                                            {{ "%.0f"|format(match.score) }}%
+                                        </div>
+                                        <small class="text-muted">Compatibility Score</small>
+                                    </div>
+                                    
+                                    <button type="submit" name="tutor_id" value="{{ match.tutor.id }}" 
+                                            class="btn {% if loop.index == 1 %}btn-success{% else %}btn-outline-primary{% endif %} btn-lg">
+                                        <i class="fas fa-check me-2"></i>
+                                        Select This Tutor
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </form>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('student_form') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Form
+                    </a>
+                </div>
+                
+                <div class="card mt-4 bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            How AI Matching Works
+                        </h6>
+                        <p class="card-text small">
+                            Our AI analyzes your description using natural language processing to:
+                            <br>• Detect subjects and topics you need help with
+                            <br>• Assess urgency level through sentiment analysis
+                            <br>• Match you with tutors based on expertise overlap
+                            <br>• Calculate compatibility scores for personalized recommendations
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

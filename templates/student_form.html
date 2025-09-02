@@ -7,14 +7,65 @@
     <title>Student Needs Form | EduTutor Connect</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
+    <style>
+        .ai-suggestions {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .suggestion-tag {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin: 0.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .suggestion-tag:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        .typing-indicator {
+            display: none;
+            color: #667eea;
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+        }
+        .sentiment-indicator {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+        .sentiment-positive { background: #d4edda; color: #155724; }
+        .sentiment-negative { background: #f8d7da; color: #721c24; }
+        .sentiment-neutral { background: #e2e3e5; color: #383d41; }
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-left: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Hero Section -->
     <section class="hero">
-        <h2>Student / Parent Access Form</h2>
-        <p class="lead">Tell us about your learning needs so we can match you with the perfect tutor.</p>
+        <h2>Student / Parent Access Form 
+            <span class="ai-badge">
+                <i class="fas fa-robot"></i> AI-Enhanced
+            </span>
+        </h2>
+        <p class="lead">Tell us about your learning needs so we can match you with the perfect tutor using AI analysis.</p>
     </section>
 
     <!-- Form Section -->
@@ -22,7 +73,18 @@
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
                 <div class="form-card">
-                    <form method="POST" novalidate>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="studentForm" novalidate>
                         <!-- Name -->
                         <div class="mb-3">
                             <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
@@ -35,15 +97,45 @@
                             <input type="email" class="form-control" id="email" name="email" placeholder="e.g., jane@example.com" required>
                         </div>
 
-                        <!-- Needs Description -->
+                        <!-- Phone Number -->
                         <div class="mb-3">
-                            <label for="needs_description" class="form-label">Describe Your Learning Needs <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="needs_description" name="needs_description" rows="4" placeholder="e.g., I’m struggling with math and need help preparing for exams." required></textarea>
+                            <label for="phone_number" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="e.g., 2547XXXXXXXX" required>
+                        </div>
+
+                        <!-- Needs Description with AI -->
+                        <div class="mb-3">
+                            <label for="needs_description" class="form-label">
+                                Describe Your Learning Needs <span class="text-danger">*</span>
+                                <small class="text-muted d-block">AI will analyze your text and suggest subjects automatically</small>
+                            </label>
+                            <textarea class="form-control" id="needs_description" name="needs_description" rows="4" 
+                                      placeholder="e.g., I'm struggling with calculus derivatives and integration. I need help with physics motion problems and want to improve my essay writing for English literature..." required></textarea>
+                            
+                            <div class="typing-indicator">
+                                <i class="fas fa-robot me-2"></i>
+                                AI is analyzing your text...
+                            </div>
+                            
+                            <div class="sentiment-indicator" id="sentimentIndicator"></div>
+                            
+                            <div class="ai-suggestions" id="aiSuggestions">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>AI Detected Subjects:</strong>
+                                </div>
+                                <div id="suggestionTags"></div>
+                                <small class="text-white-50 mt-2 d-block">
+                                    Click on tags to add them to your description
+                                </small>
+                            </div>
                         </div>
 
                         <!-- Buttons -->
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" class="btn btn-primary flex-grow-1">Prescreen with AI & Find Tutor</button>
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-robot me-2"></i>Prescreen with AI & Find Tutor
+                            </button>
                             <a href="{{ url_for('index') }}" class="btn btn-outline-secondary flex-grow-1">Back</a>
                         </div>
                     </form>
@@ -52,6 +144,16 @@
                     <p class="info-text mt-3">
                         Our AI will analyze your description for sentiment and subject matter to match you with the most suitable tutor — without overwhelming them.
                     </p>
+
+                    <!-- AI Features Info -->
+                    <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <h6 class="mb-2"><i class="fas fa-magic me-2"></i>How Our AI Helps You</h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li><i class="fas fa-check text-success me-2"></i>Automatically detects subjects from your description</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Analyzes urgency level to prioritize your needs</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Matches you with tutors based on expertise overlap</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,5 +166,123 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        let typingTimer;
+        const typingDelay = 1000; // 1 second delay after user stops typing
+        
+        document.getElementById('needs_description').addEventListener('input', function() {
+            const text = this.value;
+            const typingIndicator = document.querySelector('.typing-indicator');
+            const aiSuggestions = document.getElementById('aiSuggestions');
+            
+            // Clear previous timer
+            clearTimeout(typingTimer);
+            
+            if (text.length > 10) {
+                typingIndicator.style.display = 'block';
+                aiSuggestions.style.display = 'none';
+                
+                // Set new timer
+                typingTimer = setTimeout(() => {
+                    getSuggestions(text);
+                }, typingDelay);
+            } else {
+                typingIndicator.style.display = 'none';
+                aiSuggestions.style.display = 'none';
+            }
+        });
+        
+        function getSuggestions(text) {
+            fetch('/api/suggest_subjects', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displaySuggestions(data.suggestions);
+                analyzeSentiment(text);
+                document.querySelector('.typing-indicator').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.querySelector('.typing-indicator').style.display = 'none';
+            });
+        }
+        
+        function displaySuggestions(suggestions) {
+            const suggestionTags = document.getElementById('suggestionTags');
+            const aiSuggestions = document.getElementById('aiSuggestions');
+            
+            if (suggestions.length > 0) {
+                suggestionTags.innerHTML = '';
+                suggestions.forEach(subject => {
+                    const tag = document.createElement('span');
+                    tag.className = 'suggestion-tag';
+                    tag.textContent = subject;
+                    tag.onclick = () => addSubjectToDescription(subject);
+                    suggestionTags.appendChild(tag);
+                });
+                aiSuggestions.style.display = 'block';
+            } else {
+                aiSuggestions.style.display = 'none';
+            }
+        }
+        
+        function addSubjectToDescription(subject) {
+            const textarea = document.getElementById('needs_description');
+            const currentText = textarea.value;
+            
+            // Check if subject is already mentioned
+            if (!currentText.toLowerCase().includes(subject.toLowerCase())) {
+                textarea.value = currentText + (currentText.endsWith('.') || currentText.endsWith(' ') ? '' : ' ') + subject + ' ';
+                textarea.focus();
+                
+                // Trigger suggestions update
+                getSuggestions(textarea.value);
+            }
+        }
+        
+        function analyzeSentiment(text) {
+            const sentimentIndicator = document.getElementById('sentimentIndicator');
+            
+            // Simple client-side sentiment analysis for demo
+            const urgentWords = ['urgent', 'help', 'struggling', 'difficult', 'hard', 'confused', 'lost', 'failing', 'exam', 'test', 'deadline'];
+            const positiveWords = ['learn', 'improve', 'understand', 'master', 'excel', 'achieve', 'goal'];
+            
+            const textLower = text.toLowerCase();
+            const urgentCount = urgentWords.filter(word => textLower.includes(word)).length;
+            const positiveCount = positiveWords.filter(word => textLower.includes(word)).length;
+            
+            let sentimentClass, sentimentText, sentimentIcon;
+            
+            if (urgentCount > positiveCount) {
+                sentimentClass = 'sentiment-negative';
+                sentimentText = 'High urgency detected - we\'ll prioritize finding you immediate help';
+                sentimentIcon = 'fas fa-exclamation-triangle';
+            } else if (positiveCount > 0) {
+                sentimentClass = 'sentiment-positive';
+                sentimentText = 'Great learning attitude detected - we\'ll find tutors who match your goals';
+                sentimentIcon = 'fas fa-smile';
+            } else {
+                sentimentClass = 'sentiment-neutral';
+                sentimentText = 'We\'ll find tutors based on your subject needs';
+                sentimentIcon = 'fas fa-info-circle';
+            }
+            
+            sentimentIndicator.className = `sentiment-indicator ${sentimentClass}`;
+            sentimentIndicator.innerHTML = `<i class="${sentimentIcon} me-2"></i>${sentimentText}`;
+            sentimentIndicator.style.display = 'block';
+        }
+        
+        // Form submission with loading state
+        document.getElementById('studentForm').addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>AI is finding your perfect tutor...';
+            submitBtn.disabled = true;
+        });
+    </script>
 </body>
 </html>
