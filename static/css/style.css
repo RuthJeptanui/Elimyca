@@ -1,0 +1,139 @@
+/* ===== Global Styles ===== */
+:root {
+    /* Core Palette */
+    --primary-blue: #1e4e79;       /* Deep blue for trust & focus */
+    --primary-blue-light: #3a7ca5; /* Softer blue for gradients */
+    --accent-green: #28a745;       /* Progress & success */
+    --accent-purple: #6f42c1;      /* Creativity & critical thinking */
+    --neutral-warm: #f9f6f1;       /* Welcoming background */
+    --neutral-dark: #2c2c2c;       /* High contrast text */
+    --error-red: #dc3545;           /* Errors only */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--neutral-warm);
+    color: var(--neutral-dark);
+    line-height: 1.6;
+}
+
+/* ===== Hero Sections ===== */
+.hero {
+    background: linear-gradient(
+        rgba(30, 78, 121, 0.85),
+        rgba(58, 124, 165, 0.85)
+    ),
+    var(--hero-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #fff;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.hero h1, .hero h2 {
+    font-weight: 700;
+}
+.hero p.lead {
+    font-size: 1.1rem;
+}
+
+/* ===== Cards & Forms ===== */
+.form-card, .payment-card, .role-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+.role-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.role-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.form-label {
+    font-weight: 500;
+    color: var(--primary-blue);
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-blue), var(--primary-blue-light));
+    border: none;
+    color: #fff;
+}
+.btn-primary:hover {
+    background: linear-gradient(45deg, var(--primary-blue-light), var(--primary-blue));
+}
+
+.btn-outline-primary {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-blue);
+    color: #fff;
+}
+
+.btn-pay {
+    background: linear-gradient(45deg, var(--primary-blue), var(--accent-green));
+    border: none;
+    padding: 0.9rem 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    color: #fff;
+}
+.btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(30, 78, 121, 0.4);
+}
+
+/* ===== Price Display ===== */
+.price-display {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-blue);
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+/* ===== Info Boxes ===== */
+.tutor-info {
+    background: #f0f7fb; /* light blue tone for calmness */
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.security-info {
+    background: #e8f5e8;
+    border: 1px solid #d4edda;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--accent-green);
+}
+
+/* ===== Error States ===== */
+.is-invalid,
+.alert-danger {
+    border-color: var(--error-red) !important;
+    color: var(--error-red) !important;
+}
+
+/* ===== Footer ===== */
+footer {
+    font-size: 0.85rem;
+    background-color: var(--primary-blue);
+    color: #fff;
+    padding: 1rem 0;
+}
+
+/* ===== Responsive Typography ===== */
+@media (max-width: 576px) {
+    .hero h1, .hero h2 { font-size: 1.5rem; }
+    .hero p.lead { font-size: 1rem; }
+}

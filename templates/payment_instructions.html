@@ -1,0 +1,91 @@
+<!-- templates/payment_instructions.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Instructions</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .instructions-card {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 5px 5px 0;
+        }
+        .mpesa-code {
+            background: #28a745;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instructions-card">
+            <div class="text-center mb-4">
+                <h2>Complete Your M-PESA Payment</h2>
+                <p class="text-muted">Follow these simple steps to complete your payment</p>
+            </div>
+
+            {% if payment_data.get('method') == 'M-PESA' %}
+            <div class="mpesa-code">
+                <strong>Payment Code: {{ payment_data.get('mpesa_reference', 'XXXXX') }}</strong>
+            </div>
+
+            <div class="step">
+                <h5>📱 Step 1: Open M-PESA Menu</h5>
+                <p>Go to M-PESA menu on your phone and select <strong>Lipa Na M-PESA</strong></p>
+            </div>
+
+            <div class="step">
+                <h5>🏪 Step 2: Select Pay Bill</h5>
+                <p>Choose <strong>Pay Bill</strong> option from the menu</p>
+            </div>
+
+            <div class="step">
+                <h5>🔢 Step 3: Enter Business Number</h5>
+                <p>Business Number: <strong>{{ payment_data.get('till_number', '525900') }}</strong></p>
+            </div>
+
+            <div class="step">
+                <h5>📝 Step 4: Enter Account Number</h5>
+                <p>Account Number: <strong>{{ payment_data.get('api_ref', 'ABC123') }}</strong></p>
+            </div>
+
+            <div class="step">
+                <h5>💰 Step 5: Enter Amount</h5>
+                <p>Amount: <strong>KES {{ payment_data.get('amount', 1000) }}</strong></p>
+            </div>
+
+            <div class="step">
+                <h5>🔐 Step 6: Enter PIN</h5>
+                <p>Confirm and enter your M-PESA PIN to complete the transaction</p>
+            </div>
+
+            <div class="step">
+                <h5>📩 Step 7: Confirmation</h5>
+                <p>You will receive an SMS confirmation from Safaricom once the payment is complete.</p>
+            </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('payment_success') }}" class="btn btn-success">I Have Paid</a>
+                <a href="{{ url_for('payment_failed') }}" class="btn btn-outline-danger">Report a Problem</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

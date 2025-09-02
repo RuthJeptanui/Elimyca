@@ -1,0 +1,68 @@
+<!-- templates/student_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Needs Form | EduTutor Connect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Student / Parent Access Form</h2>
+        <p class="lead">Tell us about your learning needs so we can match you with the perfect tutor.</p>
+    </section>
+
+    <!-- Form Section -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="form-card">
+                    <form method="POST" novalidate>
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="e.g., Jane Doe" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="e.g., jane@example.com" required>
+                        </div>
+
+                        <!-- Needs Description -->
+                        <div class="mb-3">
+                            <label for="needs_description" class="form-label">Describe Your Learning Needs <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="needs_description" name="needs_description" rows="4" placeholder="e.g., I’m struggling with math and need help preparing for exams." required></textarea>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">Prescreen with AI & Find Tutor</button>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary flex-grow-1">Back</a>
+                        </div>
+                    </form>
+
+                    <!-- Info Text -->
+                    <p class="info-text mt-3">
+                        Our AI will analyze your description for sentiment and subject matter to match you with the most suitable tutor — without overwhelming them.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-3">
+        <small>&copy; {{ current_year }} Elimyca Connect. All rights reserved.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

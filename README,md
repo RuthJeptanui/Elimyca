@@ -1,0 +1,14 @@
+# EduTutor Connect
+Hackathon app for SDG 4: Quality Education.
+
+## Setup
+1. Install deps: pip install -r requirements.txt
+2. Set up MySQL: CREATE DATABASE edu_tutor_db; SOURCE database/init.sql;
+3. Run: python app.py
+
+## Features
+- Tutor register (sim pay)
+- Student prescreen with Hugging Face AI sentiment
+- Match without overload, charts
+
+Future: Real payments (Stripe), more AI (tutor recommendations), user auth.

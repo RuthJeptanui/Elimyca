@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Verification - Elimyca</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .payment-card {
+            max-width: 600px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .status-paid {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        .status-pending {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        .status-failed {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            color: white;
+        }
+        .status-error {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .checkout-id {
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem;
+            border-radius: 6px;
+            word-break: break-all;
+        }
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+        .detail-row {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="payment-card">
+            {% if error %}
+                <!-- Error State -->
+                <div class="card-header status-error text-center py-4">
+                    <i class="fas fa-exclamation-triangle status-icon"></i>
+                    <h3>Verification Error</h3>
+                    <p class="mb-0">{{ error }}</p>
+                </div>
+                <div class="card-body text-center">
+                    <div class="checkout-id mb-3">
+                        <strong>Checkout ID:</strong> {{ checkout_id }}
+                    </div>
+                    <button onclick="location.reload()" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary ms-2">
+                        <i class="fas fa-home"></i> Go Home
+                    </a>
+                </div>
+            {% else %}
+                <!-- Success State -->
+                {% if status == 'PAID' %}
+                    <div class="card-header status-paid text-center py-4">
+                        <i class="fas fa-check-circle status-icon"></i>
+                        <h3>Payment Successful!</h3>
+                        <p class="mb-0">Your payment has been confirmed</p>
+                    </div>
+                {% elif status == 'PENDING' %}
+                    <div class="card-header status-pending text-center py-4">
+                        <i class="fas fa-clock status-icon"></i>
+                        <h3>Payment Pending</h3>
+                        <p class="mb-0">Your payment is being processed</p>
+                    </div>
+                {% elif status == 'FAILED' %}
+                    <div class="card-header status-failed text-center py-4">
+                        <i class="fas fa-times-circle status-icon"></i>
+                        <h3>Payment Failed</h3>
+                        <p class="mb-0">There was an issue with your payment</p>
+                    </div>
+                {% else %}
+                    <div class="card-header status-error text-center py-4">
+                        <i class="fas fa-question-circle status-icon"></i>
+                        <h3>Unknown Status</h3>
+                        <p class="mb-0">Payment status: {{ status }}</p>
+                    </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <!-- Payment Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Payment Details</h5>
+                            <div class="detail-row">
+                                <strong>Checkout ID:</strong><br>
+                                <span class="checkout-id">{{ checkout_id }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Status:</strong>
+                                <span class="badge 
+                                    {% if status == 'PAID' %}bg-success
+                                    {% elif status == 'PENDING' %}bg-warning
+                                    {% elif status == 'FAILED' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ status }}
+                                </span>
+                            </div>
+                            {% if response and response.get('amount') %}
+                            <div class="detail-row">
+                                <strong>Amount:</strong> {{ response.get('currency', 'KES') }} {{ response.get('amount') }}
+                            </div>
+                            {% endif %}
+                            {% if response and response.get('created_at') %}
+                            <div class="detail-row">
+                                <strong>Created:</strong> {{ response.get('created_at') }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if student %}
+                        <div class="col-md-6">
+                            <h5>Student Information</h5>
+                            <div class="detail-row">
+                                <strong>Name:</strong> {{ student.name }}
+                            </div>
+                            {% if student.email %}
+                            <div class="detail-row">
+                                <strong>Email:</strong> {{ student.email }}
+                            </div>
+                            {% endif %}
+                            {% if student.needs_description %}
+                            <div class="detail-row">
+                                <strong>Learning Needs:</strong><br>
+                                <small>{{ student.needs_description[:100] }}{% if student.needs_description|length > 100 %}...{% endif %}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="text-center mt-4">
+                        {% if status == 'PENDING' %}
+                            <button onclick="location.reload()" class="btn refresh-btn">
+                                <i class="fas fa-sync-alt"></i> Refresh Status
+                            </button>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Payment may take a few minutes to process. Please refresh to check status.
+                                </small>
+                            </div>
+                        {% elif status == 'PAID' %}
+                            <a href="{{ url_for('tutor_match', student_id=student.id) if student else url_for('index') }}" 
+                               class="btn btn-success btn-lg">
+                                <i class="fas fa-user-graduate"></i> Find Your Tutor
+                            </a>
+                        {% elif status == 'FAILED' %}
+                            <a href="{{ url_for('student_form') }}" class="btn btn-primary">
+                                <i class="fas fa-redo"></i> Try Payment Again
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-home"></i> Back to Home
+                        </a>
+                    </div>
+
+                    <!-- Status Messages -->
+                    {% if status == 'PAID' %}
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Great!</strong> Your payment was successful. You can now proceed to find a tutor who matches your learning needs.
+                        </div>
+                    {% elif status == 'PENDING' %}
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-clock"></i>
+                            <strong>Please wait...</strong> Your payment is being processed. This usually takes a few minutes.
+                        </div>
+                    {% elif status == 'FAILED' %}
+                        <div class="alert alert-danger mt-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Payment Failed.</strong> Please try again or contact support if the issue persists.
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Additional Help -->
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                <small>
+                    Having issues? <a href="mailto:support@elimyca.com">Contact Support</a> |
+                    <a href="{{ url_for('index') }}">Return to Homepage</a>
+                </small>
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Auto-refresh for pending payments -->
+    {% if status == 'PENDING' %}
+    <script>
+        // Auto-refresh every 30 seconds for pending payments
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+        
+        // Show countdown
+        let countdown = 30;
+        const countdownElement = document.createElement('div');
+        countdownElement.className = 'text-center mt-2';
+        countdownElement.innerHTML = `<small class="text-muted">Auto-refreshing in <span id="countdown">${countdown}</span> seconds...</small>`;
+        document.querySelector('.container').appendChild(countdownElement);
+        
+        const interval = setInterval(function() {
+            countdown--;
+            document.getElementById('countdown').textContent = countdown;
+            if (countdown <= 0) {
+                clearInterval(interval);
+            }
+        }, 1000);
+    </script>
+    {% endif %}
+</body>
+</html>

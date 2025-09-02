@@ -1,0 +1,61 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elimyca Connect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>EduTutor Connect</h1>
+        <p>Empowering students and parents to find quality tutors for better education — aligned with <strong>SDG 4</strong>.</p>
+    </section>
+
+    <!-- Role Selection -->
+    <div class="container py-5">
+        <div class="row g-4 justify-content-center">
+            <!-- Student/Parent Card -->
+            <div class="col-md-5 col-lg-4">
+                <div class="card role-card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <img src="{{ url_for('static', filename='images/student-icon.svg') }}" alt="Student Icon" class="mb-3" width="80">
+                            <h5 class="card-title fw-bold">I'm a Student / Parent</h5>
+                            <p class="card-text text-muted">Find the right tutor to help you or your child excel academically.</p>
+                        </div>
+                        <a href="{{ url_for('student_form') }}" class="btn btn-primary btn-lg mt-3">Get Started</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tutor Card -->
+            <div class="col-md-5 col-lg-4">
+                <div class="card role-card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <img src="{{ url_for('static', filename='images/tutor-icon.svg') }}" alt="Tutor Icon" class="mb-3" width="80">
+                            <h5 class="card-title fw-bold">I'm a Tutor</h5>
+                            <p class="card-text text-muted">Join our network and connect with students who need your expertise.</p>
+                        </div>
+                        <a href="{{ url_for('tutor_register') }}" class="btn btn-outline-primary btn-lg mt-3">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-3 mt-auto">
+        <small>&copy; {{ current_year }} Elimyca Connect. All rights reserved.</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
