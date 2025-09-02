@@ -10,7 +10,7 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "local").lower()
 
 # Load environment-specific overrides
 if ENVIRONMENT == "production":
-    load_dotenv(".env.prod", override=True)
+    load_dotenv(".env.production", override=True)
 else:
     load_dotenv(".env.local", override=True)
 
@@ -47,16 +47,17 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
 
 # Set default ports if not provided
-if not DB_PORT:
-    DB_PORT = 3306 if DB_ENGINE == 'mysql' else 5432 if DB_ENGINE == 'postgresql' else None
+DB_PORT = safe_int(DB_PORT, 3306 if DB_ENGINE == 'mysql' else 5432)
 
 # Connection dictionaries for direct use in get_db_connection()
 PROD_DB = {
+    "dbengine": DB_ENGINE,
+    "port": DB_PORT,
     "host": DB_HOST,
     "user": DB_USER,
     "password": DB_PASSWORD,
     "dbname": DB_NAME,
-    "port": DB_PORT
+  
 }
 
 LOCAL_DB = {
