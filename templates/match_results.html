@@ -13,9 +13,9 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">TutorMatch</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">TutorMatch</a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                <a class="nav-link" href="{{ url_for('.main.index') }}">Home</a>
             </div>
         </div>
     </nav>
@@ -58,7 +58,7 @@
                 </div>
                 <div class="col-md-4 text-center">
                     <div class="d-grid">
-                        <a href="{{ url_for('payment', student_id=student_id, tutor_id=tutor.id) }}" 
+                        <a href="{{ url_for('main.payment', student_id=student_id, tutor_id=tutor.id) }}" 
                             class="btn btn-proceed btn-lg">
                                 💳 Proceed to Payment
                         </a>
@@ -119,10 +119,10 @@
 
         <!-- Alternative Actions -->
         <div class="text-center mt-4">
-            <a href="{{ url_for('student_form') }}" class="btn btn-outline-primary me-2">
+            <a href="{{ url_for('main.student_form') }}" class="btn btn-outline-primary me-2">
                 🔄 Find Different Tutor
             </a>
-            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
                 🏠 Back to Home
             </a>
         </div>

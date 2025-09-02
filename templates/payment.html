@@ -49,7 +49,7 @@
                     </div>
 
                     <!-- Payment Form -->
-                    <form action="{{ url_for('process_payment') }}" method="POST" id="paymentForm">
+                    <form action="{{ url_for('main.process_payment') }}" method="POST" id="paymentForm">
                         <input type="hidden" name="student_id" value="{{ student.id }}">
                         <input type="hidden" name="tutor_id" value="{{ tutor.id }}">
                         <input type="hidden" name="amount" value="{{ config.DEFAULT_SESSION_PRICE }}">
@@ -88,7 +88,7 @@
 
                     <!-- Back Link -->
                     <div class="text-center mt-3">
-                        <a href="{{ url_for('index') }}" class="text-muted">← Back to Home</a>
+                        <a href="{{ url_for('main.index') }}" class="text-muted">← Back to Home</a>
                     </div>
 
                 </div>
