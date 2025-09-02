@@ -10,6 +10,7 @@ def get_db_connection():
         if Config.DB_ENGINE == 'postgresql':
             conn = psycopg2.connect(
                 dbengine=Config.DB_ENGINE,
+                databaseurl=Config.DATABASE_URL,
                 host=Config.DB_HOST,
                 user=Config.DB_USER,
                 password=Config.DB_PASSWORD,

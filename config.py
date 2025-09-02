@@ -56,6 +56,7 @@ DB_PORT = safe_int(DB_PORT, 3306 if DB_ENGINE == 'mysql' else 5432)
 # Connection dictionaries for direct use in get_db_connection()
 PROD_DB = {
     "dbengine": DB_ENGINE,
+    "databaseurl": DATABASE_URL,
     "port": DB_PORT,
     "host": DB_HOST,
     "user": DB_USER,
