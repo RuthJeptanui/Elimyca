@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # Load .env file
 load_dotenv()
 
-# Database configuration (update with your MySQL details)
+
 # Database configuration (update with your MySQL details)
 DB_HOST='localhost'
 DB_USER='DB_USER'  

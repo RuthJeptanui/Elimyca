@@ -1,0 +1,22 @@
+# Python
+venv/
+*.pyc
+__pycache__/
+
+# Configs
+config.py
+.env
+.env.*
+instance/
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+# OS files
+.DS_Store
+Thumbs.db
+# Logs
+*.log
+logs/
+*.sqlite3
