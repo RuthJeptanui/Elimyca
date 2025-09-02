@@ -25,4 +25,5 @@ logs/
 database/*.sqlite3
 s
 
-
+# Ignore all .env files
+.env*

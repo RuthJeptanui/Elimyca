@@ -1,5 +1,5 @@
--- Create database
 
+-- Database: elimyca_db     MySQL local development
 USE elimyca_db;
 
 
@@ -33,9 +33,6 @@ CREATE TABLE IF NOT EXISTS students (
     FOREIGN KEY (matched_tutor_id) REFERENCES tutors(id) ON DELETE SET NULL
 );
 
-
-
-
 -- Payments table
 CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -66,8 +63,17 @@ CREATE INDEX idx_tutors_subject_tags ON tutors(subject_tags(100));
 CREATE INDEX idx_students_subject_tags ON students(subject_tags(100));
 CREATE INDEX idx_students_compatibility_score ON students(compatibility_score);
 
+-- Tutors
+INSERT INTO tutors (name, expertise, availability, email, phone_number, payment_status, subject_tags)
+VALUES
+('Alice Wanjiru', 'Mathematics', 'Weekdays 5-8pm', 'alice@example.com', '0712000001', 'PAID', 'Mathematics, Algebra'),
+('Brian Otieno', 'Physics', 'Weekends 9am-1pm', 'brian@example.com', '0712000002', 'PAID', 'Physics, Science'),
+('Catherine Njeri', 'English', 'Weekdays 2-5pm', 'catherine@example.com', '0712000003', 'PAID', 'English, Literature');
 
-
-
+-- Students
+INSERT INTO students (name, needs_description, email, phone_number, sentiment, subject_tags)
+VALUES
+('Kevin Otieno', 'I need help with algebra homework', 'kevin@example.com', '0722000001', 'Neutral', 'Mathematics, Algebra'),
+('Linda Akinyi', 'Struggling with physics concepts', 'linda@example.com', '0722000002', 'Frustrated', 'Physics, Science');
 
 SELECT * FROM tutors;
